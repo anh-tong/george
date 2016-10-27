@@ -246,7 +246,6 @@ cdef inline Kernel* parse_kernel(kernel_spec) except *:
 
     elif kernel_spec.kernel_type == -3:
         #TODO: intial kernels or not?
-        cdef np.ndarray[DTYPE_t, ndim=1] z = kernel_spec.z
         kernel = new LatentModelKernel(ndim, kernel_spec.dim, kernel_spec.size, kernel_spec.k)
         #TODO: validate that ndim in all kernel_spec.kernels shoudl be equal
         for component in kernel_spec.kernels:
