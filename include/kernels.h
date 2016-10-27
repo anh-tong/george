@@ -223,12 +223,11 @@ public:
         value_ = value;
     };
     double get_parameter (const unsigned int i) const { return value_; };
-};
-
 
 private:
     double value_;
 };
+
 class DotProductKernel : public Kernel {
 public:
     DotProductKernel (const unsigned int ndim) : Kernel(ndim) {};
