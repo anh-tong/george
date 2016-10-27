@@ -246,12 +246,11 @@ cdef inline Kernel* parse_kernel(kernel_spec) except *:
 
     elif kernel_spec.kernel_type == -3:
         #TODO: intial kernels or not?
-        components = [parse_kernel(component) for component in kernel_spec.kernels]
         cs = <Kernel *> malloc(len(components)*cython.sizeof(Kernel))
         if cs is NULL:
             raise MemoryError()
-        for i in range(len(components)):
-            cs[i] = components[i]
+        for i in range(len(kernel_spec.kernels)):
+            cs[i] = parse_kernel(kernel_spec.kernels[i])
         kernel = new LatentModelKernel(ndim, kernel_spec.dim, kernel_spec.size, kernel_spec.k, cs)
         #TODO: validate that ndim in all kernel_spec.kernels shoudl be equal
         #for component in kernel_spec.kernels:
