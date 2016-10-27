@@ -5,6 +5,7 @@ import numpy as np
 cimport numpy as np
 cimport cython
 from libc.stdlib cimport malloc, free
+from libcpp.vector cimport vector
 
 DTYPE = np.float64
 ctypedef np.float64_t DTYPE_t
@@ -90,7 +91,7 @@ cdef extern from "kernels.h" namespace "george::kernels":
 
     cdef cppclass LatentModelKernel(Kernel):
         #TODO: work here
-        LatentModelKernel(const unsigned int ndim, const unsigned int dim, const unsigned int size, const unsigned k, Kernel* cs)
+        LatentModelKernel(const unsigned int ndim, const unsigned int dim, const unsigned int size, const unsigned k, vector<Kernel*> cs)
 
 
 cdef inline double eval_python_kernel (const double* pars,
@@ -248,11 +249,14 @@ cdef inline Kernel* parse_kernel(kernel_spec) except *:
 
     elif kernel_spec.kernel_type == -3:
         #TODO: intial kernels or not?
-        cs = <Kernel *> malloc(len(kernel_spec.kernels)*cython.sizeof(Kernel))
-        if cs is NULL:
-            raise MemoryError()
+        #cs = <Kernel *> malloc(len(kernel_spec.kernels)*cython.sizeof(Kernel))
+        cdef vector[Kernel*] cs
+
+        #if cs is NULL:
+        #   raise MemoryError()
         for i in range(len(kernel_spec.kernels)):
-            *(cs+i) = parse_kernel(kernel_spec.kernels[i])
+            #*(cs+i) = parse_kernel(kernel_spec.kernels[i])
+            cs.push_back(parse_kernel(kernel_spec.kernels[i]))
         kernel = new LatentModelKernel(ndim, kernel_spec.dim, kernel_spec.size, kernel_spec.k, cs)
         #TODO: validate that ndim in all kernel_spec.kernels shoudl be equal
         #for component in kernel_spec.kernels:
