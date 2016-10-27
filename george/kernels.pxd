@@ -252,7 +252,7 @@ cdef inline Kernel* parse_kernel(kernel_spec) except *:
         if cs is NULL:
             raise MemoryError()
         for i in range(len(kernel_spec.kernels)):
-            cs[i] = parse_kernel(kernel_spec.kernels[i])
+            *(cs+i) = parse_kernel(kernel_spec.kernels[i])
         kernel = new LatentModelKernel(ndim, kernel_spec.dim, kernel_spec.size, kernel_spec.k, cs)
         #TODO: validate that ndim in all kernel_spec.kernels shoudl be equal
         #for component in kernel_spec.kernels:
