@@ -37,7 +37,7 @@ public:
     virtual double get_parameter (const unsigned int i) const { return 0.0; };
 
     //append component kernels
-    virtual void add_component(Kernel* kernel){ return };
+    virtual void add_component(Kernel* kernel){ };
 
 protected:
     unsigned int ndim_;
@@ -450,8 +450,6 @@ class LatentModelKernel : public Kernel {
     LatentModelKernel(const unsigned int ndim, const unsigned int dim, const unsigned int size, const unsigned int K)
         : Kernel(ndim), dim_(dim), size_(size) {
             parameters_ = new double[size];
-            components = new Kernel[K];
-            int k = 0;
         };
 
     double value(const double* x1, const double* x2) const{
@@ -466,13 +464,18 @@ class LatentModelKernel : public Kernel {
 
     void set_parameter(const unsigned int i, const double value){ parameters_[i] = value; };
 
-    double get_parameter (const unsigned int) const{ return parameters_[i] };
+    double get_parameter (const unsigned int i) const{ return parameters_[i]; };
 
-    void add_component(Kernel* kernel){
-        component[k] = kernel;
-        k++;
+    void add_component(Kernel kernel){
+        component_.push_back(kernel);
     }
-}
+private:
+double* parameters_;
+unsigned int dim_;
+unsigned int size_;
+vector<Kernel> component_;
+unsigned int k_;
+};
 
 }; // namespace kernels
 }; // namespace george
