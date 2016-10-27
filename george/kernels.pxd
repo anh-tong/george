@@ -162,6 +162,7 @@ cdef inline Kernel* parse_kernel(kernel_spec) except *:
     cdef np.ndarray[DTYPE_t, ndim=1] pars = kernel_spec.pars
 
     cdef Kernel* kernel
+    cdef vector[Kernel*] cs
 
     if kernel_spec.kernel_type == -2:
         kernel = new CustomKernel(ndim, kernel_spec.size, <void*>kernel_spec,
@@ -250,8 +251,6 @@ cdef inline Kernel* parse_kernel(kernel_spec) except *:
     elif kernel_spec.kernel_type == -3:
         #TODO: intial kernels or not?
         #cs = <Kernel *> malloc(len(kernel_spec.kernels)*cython.sizeof(Kernel))
-        cdef vector[Kernel*] cs
-
         #if cs is NULL:
         #   raise MemoryError()
         for i in range(len(kernel_spec.kernels)):
