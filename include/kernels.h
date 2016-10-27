@@ -448,7 +448,7 @@ private:
 
 class LatentModelKernel : public Kernel {
     LatentModelKernel(const unsigned int ndim, const unsigned int dim, const unsigned int size, const unsigned int K)
-        : Kernel(ndim), dim_(dim), size_(size) {
+        : Kernel(ndim), dim_(dim), size_(size), K_(K) {
             parameters_ = new double[size];
         };
 
@@ -474,7 +474,7 @@ double* parameters_;
 unsigned int dim_;
 unsigned int size_;
 vector<Kernel> component_;
-unsigned int k_;
+unsigned int K_;
 };
 
 }; // namespace kernels
