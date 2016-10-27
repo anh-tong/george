@@ -228,6 +228,7 @@ public:
 
 private:
     double value_;
+};
 class DotProductKernel : public Kernel {
 public:
     DotProductKernel (const unsigned int ndim) : Kernel(ndim) {};
