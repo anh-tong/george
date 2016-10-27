@@ -447,6 +447,7 @@ private:
 };
 
 class LatentModelKernel : public Kernel {
+public:
     LatentModelKernel(const unsigned int ndim, const unsigned int dim, const unsigned int size, const unsigned int K, vector<Kernel*> cs)
         : Kernel(ndim), dim_(dim), size_(size), K_(K), component_(cs) {
             parameters_ = new double[size];
