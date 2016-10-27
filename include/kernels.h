@@ -36,6 +36,9 @@ public:
     virtual void set_parameter (const unsigned int i, const double value) {};
     virtual double get_parameter (const unsigned int i) const { return 0.0; };
 
+    //append component kernels
+    virtual void add_component(Kernel* kernel){ return };
+
 protected:
     unsigned int ndim_;
 };
@@ -220,11 +223,11 @@ public:
         value_ = value;
     };
     double get_parameter (const unsigned int i) const { return value_; };
+};
+
 
 private:
     double value_;
-};
-
 class DotProductKernel : public Kernel {
 public:
     DotProductKernel (const unsigned int ndim) : Kernel(ndim) {};
@@ -442,6 +445,34 @@ private:
     unsigned int dim_;
     double gamma_, period_;
 };
+
+class LatentModelKernel : public Kernel {
+    LatentModelKernel(const unsigned int ndim, const unsigned int dim, const unsigned int size, const unsigned int K)
+        : Kernel(ndim), dim_(dim), size_(size) {
+            parameters_ = new double[size];
+            components = new Kernel[K];
+            int k = 0;
+        };
+
+    double value(const double* x1, const double* x2) const{
+        //TODO: think about
+        return 0.0;
+    };
+
+    void gradient(const double *x1, const double* x2, double* grad) const {
+        //TODO: think about
+    }
+    unsigned int size() const { return size_; };
+
+    void set_parameter(const unsigned int i, const double value){ parameters_[i] = value; };
+
+    double get_parameter (const unsigned int) const{ return parameters_[i] };
+
+    void add_component(Kernel* kernel){
+        component[k] = kernel;
+        k++;
+    }
+}
 
 }; // namespace kernels
 }; // namespace george

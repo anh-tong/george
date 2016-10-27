@@ -189,3 +189,12 @@ def test_exp_sine2():
 def test_combine():
     do_kernel_t(12 * kernels.ExpSine2Kernel(0.4, 1.0, ndim=5) + 0.1)
     do_kernel_t(12 * kernels.ExpSquaredKernel(0.4, ndim=3) + 0.1)
+
+
+def test_latent_model():
+
+    se = kernels.ExpSquaredKernel(1.5)
+    par = se.pars
+
+    latent_model_kernel = kernels.LatentModelKernel(kernels = [se], pars = par)
+

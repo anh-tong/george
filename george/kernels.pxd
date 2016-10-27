@@ -86,6 +86,10 @@ cdef extern from "kernels.h" namespace "george::kernels":
     cdef cppclass ExpSine2Kernel(Kernel):
         ExpSine2Kernel(const unsigned int ndim, const unsigned int dim)
 
+    cdef cppclass LatentModelKernel(Kernel):
+        #TODO: work here
+        LatentModelKernel(const unsigned int ndim)
+
 
 cdef inline double eval_python_kernel (const double* pars,
                                        const unsigned int size, void* meta,
@@ -239,6 +243,17 @@ cdef inline Kernel* parse_kernel(kernel_spec) except *:
 
     elif kernel_spec.kernel_type == 9:
         kernel = new ExpSine2Kernel(ndim, kernel_spec.dim)
+
+     elif kernel_spec.kernel_type == 3:
+        #TODO: intial kernels or not?
+        cdef np.ndarray[DTYPE_t, ndim=1] z = kernel_spec.z
+        kernel = new LatentModelKernel(ndim, kernel_spec.dim, kernel_spec.size, kernel_spec.k)
+        #TODO: validate that ndim in all kernel_spec.kernels shoudl be equal
+        for component in kernel_spec.kernels:
+            c = parse_kernel(component)
+            kernel.add_component(c)
+
+
 
     else:
         raise TypeError("Unknown kernel: {0}".format(

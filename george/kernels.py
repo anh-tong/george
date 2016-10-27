@@ -504,3 +504,37 @@ class PythonKernel(Kernel):
                 g = numerical_gradient(partial(f, x1, x2), p, dx=dx)
                 return g
         return grad
+
+
+
+class LatentModelKernel(Kernel):
+
+    kernel_type = -3
+
+    def __init__(self, kernels = [], pars = (), z = None,  ndim = 1):
+        """
+
+        :param kernels: List of kernels
+        :param pars: parameters of all kernels with its order
+        :param z: Indian Buffet process latent matrix #TODO: check if you can put a numpy array here
+        :param ndim: the number of dimension
+        :return: a new object
+        """
+        super(LatentModelKernel, self).__init__(*pars, ndim=ndim)
+        self.kernels = kernels
+        self.z = z
+        self.k = len(self.kernels)
+        self.size = sum([len(k.pars) for k in self.kernels])
+
+
+    def add_components(self, c):
+        """
+
+        :type c: Kernel
+        :return:
+        """
+        self.kernels.append(c)
+        self.k +=1
+        self.size += len(c.pars)
+
+
