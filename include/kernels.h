@@ -37,7 +37,7 @@ public:
     virtual double get_parameter (const unsigned int i) const { return 0.0; };
 
     //append component kernels
-    virtual void add_component(Kernel* kernel){ };
+    virtual void add_component(Kernel kernel){ };
 
 protected:
     unsigned int ndim_;
