@@ -3,6 +3,8 @@ from __future__ import division
 
 import numpy as np
 cimport numpy as np
+cimport cython
+from libc.stdlib cimport malloc, free
 
 DTYPE = np.float64
 ctypedef np.float64_t DTYPE_t
@@ -246,7 +248,7 @@ cdef inline Kernel* parse_kernel(kernel_spec) except *:
 
     elif kernel_spec.kernel_type == -3:
         #TODO: intial kernels or not?
-        cs = <Kernel *> malloc(len(components)*cython.sizeof(Kernel))
+        cs = <Kernel *> malloc(len(kernel_spec.kernels)*cython.sizeof(Kernel))
         if cs is NULL:
             raise MemoryError()
         for i in range(len(kernel_spec.kernels)):
