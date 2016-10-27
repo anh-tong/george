@@ -88,7 +88,7 @@ cdef extern from "kernels.h" namespace "george::kernels":
 
     cdef cppclass LatentModelKernel(Kernel):
         #TODO: work here
-        LatentModelKernel(const unsigned int ndim, const unsigned int dim, const unsigned int size, const unsigned k)
+        LatentModelKernel(const unsigned int ndim, const unsigned int dim, const unsigned int size, const unsigned k, Kernel* cs)
 
 
 cdef inline double eval_python_kernel (const double* pars,
@@ -246,11 +246,17 @@ cdef inline Kernel* parse_kernel(kernel_spec) except *:
 
     elif kernel_spec.kernel_type == -3:
         #TODO: intial kernels or not?
-        kernel = new LatentModelKernel(ndim, kernel_spec.dim, kernel_spec.size, kernel_spec.k)
+        components = [parse_kernel(component) for component in kernel_spec.kernels]
+        cs = <Kernel *> malloc(len(components)*cython.sizeof(Kernel))
+        if cs is NULL:
+            raise MemoryError()
+        for i in range(len(components)):
+            cs[i] = components[i]
+        kernel = new LatentModelKernel(ndim, kernel_spec.dim, kernel_spec.size, kernel_spec.k, cs)
         #TODO: validate that ndim in all kernel_spec.kernels shoudl be equal
-        for component in kernel_spec.kernels:
-            c = parse_kernel(component)
-            kernel.add_component(c)
+        #for component in kernel_spec.kernels:
+        #    c = parse_kernel(component)
+        #    kernel.add_component(c)
 
 
 
