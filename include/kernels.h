@@ -448,19 +448,57 @@ private:
 
 class LatentModelKernel : public Kernel {
 public:
-    LatentModelKernel(const unsigned int ndim, const unsigned int dim, const unsigned int size, const unsigned int K, vector<Kernel*> cs)
-        : Kernel(ndim), dim_(dim), size_(size), K_(K), component_(cs) {
+    LatentModelKernel(const unsigned int ndim, const unsigned int dim, const unsigned int size, const unsigned int K, const unsigned int D, vector<Kernel*> cs, const double* ZTZ)
+        : Kernel(ndim), dim_(dim), size_(size), K_(K), component_(cs), D_(D), ZTZ_(ZTZ) {
             parameters_ = new double[size];
         };
 
     double value(const double* x1, const double* x2) const{
-        //TODO: think about
-        return 0.0;
+        return value(x1, x2, i_, j_);
+    };
+
+    double value(const double* x1, const double* x2, unsigned int i, unsigned int j) const {
+
+        if (i == j){                                                        //case i = j
+            return component_.at(i%D_)->value(x1, x2) + ZTZ_[i%D_*K_ + j%D_];  //+Z[i%D_*K_ + j%D]
+        }else if (i%K_ == j%K_){                                            //case i%K == j%K
+            return ZTZ_[i%D_*K_ + j%D_];                                       //Z[i%D_*K_ + j%D]
+        }else if (i%K_ != j%K_ && i%D_ == j%D_){                             //case i%K != j%K
+            return component_.at(i%D_)->value(x1, x2);
+        }else                                                               //otherwise 0
+            return 0.0;
+
+
+
     };
 
     void gradient(const double *x1, const double* x2, double* grad) const {
-        //TODO: think about
-    }
+        gradient(x1, x2, grad, i_, j_);
+    };
+
+    void gradient(const double *x1, const double* x2, double* grad, unsigned int i, unsigned int j) const {
+        if (i == j){                                                        //case i = j
+            return component_.at(i%D_)->gradient(x1, x2, grad);  //+Z[i%D_*K_ + j%D]
+        }else if (i%K_ == j%K_){                                            //case i%K == j%K
+            double grad_ = 0.0;
+            grad = &grad_;                                      //Z[i%D_*K_ + j%D]
+        }else if (i%K_ != j%K_ && i%D_ == j%D_){                             //case i%K != j%K
+            return component_.at(i%D_)->gradient(x1, x2, grad);
+        }else{                                                               //otherwise 0
+            double grad_ = 0.0;
+            grad = &grad_;
+        }
+    };
+
+    void set_ij(int i, int j){
+        i_ = i;
+        j_ = j;
+    };
+
+    unsigned int get_K() {return K_; };
+
+    unsigned int get_D() {return D_; };
+
     unsigned int size() const { return size_; };
 
     void set_parameter(const unsigned int i, const double value){ parameters_[i] = value; };
@@ -469,10 +507,15 @@ public:
 
 private:
 double* parameters_;
-unsigned int dim_;
-unsigned int size_;
+const unsigned int dim_;
+const unsigned int size_;
 vector<Kernel*> component_;
-unsigned int K_;
+const unsigned int K_;
+const unsigned int D_;
+const double* ZTZ_;
+//ij here
+unsigned int i_;
+unsigned int j_;
 };
 
 }; // namespace kernels

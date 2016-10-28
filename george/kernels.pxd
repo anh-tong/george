@@ -91,7 +91,7 @@ cdef extern from "kernels.h" namespace "george::kernels":
 
     cdef cppclass LatentModelKernel(Kernel):
         #TODO: work here
-        LatentModelKernel(const unsigned int ndim, const unsigned int dim, const unsigned int size, const unsigned k, vector[Kernel*] cs)
+        LatentModelKernel(const unsigned int ndim, const unsigned int dim, const unsigned int size, const unsigned int k, const unsigned int d, vector[Kernel*] cs, const double* ztz)
 
 
 cdef inline double eval_python_kernel (const double* pars,
@@ -160,6 +160,7 @@ cdef inline Kernel* parse_kernel(kernel_spec) except *:
     # Get the kernel parameters.
     cdef unsigned int ndim = kernel_spec.ndim
     cdef np.ndarray[DTYPE_t, ndim=1] pars = kernel_spec.pars
+    cdef np.ndarray[DTYPE_t, ndim=1] ztz = kernel_spec.ztz
 
     cdef Kernel* kernel
     cdef vector[Kernel*] cs
@@ -256,7 +257,7 @@ cdef inline Kernel* parse_kernel(kernel_spec) except *:
         for i in range(len(kernel_spec.kernels)):
             #*(cs+i) = parse_kernel(kernel_spec.kernels[i])
             cs.push_back(parse_kernel(kernel_spec.kernels[i]))
-        kernel = new LatentModelKernel(ndim, kernel_spec.dim, kernel_spec.size, kernel_spec.k, cs)
+        kernel = new LatentModelKernel(ndim, kernel_spec.dim, kernel_spec.size, kernel_spec.k, kernel_spec.d, cs, <double*> ztz.data)
         #TODO: validate that ndim in all kernel_spec.kernels shoudl be equal
         #for component in kernel_spec.kernels:
         #    c = parse_kernel(component)
