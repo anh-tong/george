@@ -193,8 +193,8 @@ def test_combine():
 
 def test_latent_model():
 
-    se = kernels.ExpSquaredKernel(1.5)
-    par = se.pars
+    se1 = kernels.ExpSquaredKernel(1.5)
+    se2 = kernels.ExpSquaredKernel(2.5)
+    par = se1.pars
 
-    latent_model_kernel = kernels.LatentModelKernel(kernels = [se], pars = par)
-
+    latent_model_kernel = kernels.LatentModelKernel(kernels = [se1, se2], pars= np.append(se1.pars, se2.pars), d = 2, ztz=[ 1, 1, 1, 0])

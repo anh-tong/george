@@ -93,8 +93,8 @@ cdef class LatentHODLRSolver:
         # Check the input dimensions.
         cdef unsigned int n = x.shape[0]
         cdef unsigned int ndim = x.shape[1]
-        if yerr.shape[0] != n or ndim != self.kernel.get_ndim():
-            raise ValueError("Dimension mismatch")
+        #if yerr.shape[0] != n or ndim != self.kernel.get_ndim():
+        #    raise ValueError("Dimension mismatch")
 
         # Seed with the time if no seed is provided.
         if seed is None:

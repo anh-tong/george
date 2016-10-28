@@ -9,6 +9,7 @@ import numpy as np
 from .. import kernels
 from ..basic import BasicSolver
 from ..hodlr import HODLRSolver
+from ..latenthodlr import LatentHODLRSolver
 
 
 def _test_solver(Solver, N=100, seed=1234):
@@ -41,3 +42,14 @@ def test_basic_solver(**kwargs):
 
 def test_hodlr_solver(**kwargs):
     _test_solver(HODLRSolver, **kwargs)
+
+def test_latent_holr_solver(**kwargs):
+    se1 = kernels.ExpSquaredKernel(1.5)
+    se2 = kernels.ExpSquaredKernel(2.5)
+
+    latent_model_kernel = kernels.LatentModelKernel(kernels = [se1, se2], pars = np.append(se1.pars, se2.pars), d = 2, ztz=np.array([ 1.0, 1.0, 1.0, 0.0]))
+    solver = LatentHODLRSolver(latent_model_kernel)
+    x = np.random.randn(latent_model_kernel.d, latent_model_kernel.ndim)
+    yerr = 1e-3 * np.ones(latent_model_kernel.k*latent_model_kernel.d)
+    solver.compute(x, yerr)
+

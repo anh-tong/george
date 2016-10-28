@@ -513,7 +513,7 @@ class LatentModelKernel(Kernel):
 
     kernel_type = -3
 
-    def __init__(self, kernels = [], pars = (), d = None, ztz = None,  ndim = 1):
+    def __init__(self, kernels = [], pars = (), d = None, ztz = None,  ndim = 1, dim=0):
         """
 
         :param kernels: List of kernels
@@ -527,8 +527,9 @@ class LatentModelKernel(Kernel):
         self.k = len(self.kernels)
         self.ztz = ztz
         self.size = sum([len(k.pars) for k in self.kernels])
-        assert d is None
+        assert d is not None
         self.d = d
+        self.dim = dim
 
 
     def add_components(self, c):
