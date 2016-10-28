@@ -52,4 +52,9 @@ def test_latent_holr_solver(**kwargs):
     x = np.random.randn(latent_model_kernel.d, latent_model_kernel.ndim)
     yerr = 1e-3 * np.ones(latent_model_kernel.k*latent_model_kernel.d)
     solver.compute(x, yerr)
+    K = latent_model_kernel.value(x)
+    print(K)
+
+if __name__ == 'main':
+    test_latent_holr_solver()
 

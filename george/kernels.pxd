@@ -92,6 +92,7 @@ cdef extern from "kernels.h" namespace "george::kernels":
     cdef cppclass LatentModelKernel(Kernel):
         #TODO: work here
         LatentModelKernel(const unsigned int ndim, const unsigned int dim, const unsigned int size, const unsigned int k, const unsigned int d, vector[Kernel*] cs, const double* ztz)
+        double value (const double* x1, const double* x2, unsigned int i, unsigned int j) const
 
 
 cdef inline double eval_python_kernel (const double* pars,

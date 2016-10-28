@@ -53,6 +53,29 @@ cdef class CythonKernel:
         return k
 
     @cython.boundscheck(False)
+    def value_ij_symmetric(self, np.ndarray[DTYPE_t, ndim=2] x, int N1, int K1, int D1):
+        cdef kernels.LatentModelKernel* latent_kernel = <kernels.LatentModelKernel*> self.kernel
+        cdef unsigned int n = x.shape[0], ndim = x.shape[1]
+        if self.kernel.get_ndim() != ndim:
+            raise ValueError("Dimension mismatch")
+
+        # Build the kernel matrix.
+        cdef double value
+        cdef unsigned int i, j, delta = x.strides[0]
+        cdef unsigned int N = N1, K = K1, D = D1
+        cdef np.ndarray[DTYPE_t, ndim=2] k = np.empty((N, N), dtype=DTYPE)
+        for i in range(N):
+            k[i, i] = latent_kernel.value(<double*>(x.data + (i%K)*delta),
+                                        <double*>(x.data + (i%K)*delta), i, i)
+            for j in range(i + 1, N):
+                value = latent_kernel.value(<double*>(x.data + (i%K)*delta),
+                                          <double*>(x.data + (j%K)*delta), i, j)
+                k[i, j] = value
+                k[j, i] = value
+
+        return k
+
+    @cython.boundscheck(False)
     def value_general(self, np.ndarray[DTYPE_t, ndim=2] x1,
                       np.ndarray[DTYPE_t, ndim=2] x2):
         # Parse the input kernel spec.

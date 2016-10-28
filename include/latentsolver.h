@@ -33,6 +33,7 @@ public:
         kernel_->set_ij(i,j);
         int d1 = i % kernel_->get_K();
         int d2 = j % kernel_->get_K();
+        kernel_->set_ij(i,j);
         return kernel_->value(&(t_[d1*stride_]), &(t_[d2*stride_]));
     };
 
