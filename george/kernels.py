@@ -93,6 +93,15 @@ class Kernel(object):
         self._pars = np.array(v, dtype=np.float64, order="C")
         self.dirty = True
 
+    @property
+    def ztz(self):
+        return self._ztz
+
+    @ztz.setter
+    def ztz(self, v):
+        self._ztz = np.array(v, dtype=np.float64, order="C")
+
+
     def __getitem__(self, i):
         return self.vector[i]
 
@@ -524,9 +533,9 @@ class LatentModelKernel(Kernel):
         self.kernels = kernels
         self.k = len(self.kernels)
         if ztz is None:
-            self.ztx = np.zeros((self.k, self.k))
+            self.ztz(np.zeros((self.k, self.k)))
         else:
-            self.ztz = ztz
+            self.ztz(ztz)
         self.size = sum([len(k.pars) for k in self.kernels])
         assert d is None
         self.d = d
