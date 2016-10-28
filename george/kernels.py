@@ -54,6 +54,8 @@ class Kernel(object):
         self.pars = np.array(pars)
         self.dirty = True
         self._kernel = None
+        #try to init trivial ztz
+        self.ztz = np.array([0])
 
     def __getstate__(self):
         odict = self.__dict__.copy()
