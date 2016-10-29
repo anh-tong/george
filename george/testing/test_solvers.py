@@ -46,15 +46,28 @@ def test_hodlr_solver(**kwargs):
 def test_latent_holr_solver(**kwargs):
     se1 = kernels.ExpSquaredKernel(1.5)
     se2 = kernels.ExpSquaredKernel(2.5)
+    # se3 = kernels.ExpSquaredKernel(1)
+
+
+
 
     latent_model_kernel = kernels.LatentModelKernel(kernels = [se1, se2], pars = np.append(se1.pars, se2.pars), d = 2, ztz=np.array([ 1.0, 1.0, 1.0, 0.0]))
     solver = LatentHODLRSolver(latent_model_kernel)
     x = np.random.randn(latent_model_kernel.d, latent_model_kernel.ndim)
+    print(se1.value(x))
+    print(se2.value(x))
+    inv1 = np.linalg.inv(se1.value(x))
+    print(inv1)
+    inv2 = np.linalg.inv(se2.value(x))
+    print(inv2)
+    # se1.set_inversed(inv1, 4)
+    # se2.set_inversed(inv2, 4)
+
     yerr = 1e-3 * np.ones(latent_model_kernel.k*latent_model_kernel.d)
-    solver.compute(x, yerr)
-    K = latent_model_kernel.value(x)
+    latent_model_kernel.add_inversed(inv1)
+    latent_model_kernel.add_inversed(inv2)
+    # solver.compute(x, yerr)
+    K = latent_model_kernel.value_ij(x,latent_model_kernel.k*latent_model_kernel.d, latent_model_kernel.k, latent_model_kernel.d )
     print(K)
 
-if __name__ == 'main':
-    test_latent_holr_solver()
 

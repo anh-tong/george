@@ -32,6 +32,12 @@ cdef class CythonKernel:
         del self.kernel
 
     @cython.boundscheck(False)
+    def add_inversed(self, np.ndarray[DTYPE_t, ndim=2] inv):
+        cdef kernels.LatentModelKernel* latent_kernel = <kernels.LatentModelKernel*> self.kernel
+        latent_kernel.add_inversed(<double*> inv.data)
+
+
+    @cython.boundscheck(False)
     def value_symmetric(self, np.ndarray[DTYPE_t, ndim=2] x):
         cdef unsigned int n = x.shape[0], ndim = x.shape[1]
         if self.kernel.get_ndim() != ndim:
@@ -61,15 +67,17 @@ cdef class CythonKernel:
 
         # Build the kernel matrix.
         cdef double value
-        cdef unsigned int i, j, delta = x.strides[0]
+        cdef unsigned int i, j, a, b, delta = x.strides[0]
         cdef unsigned int N = N1, K = K1, D = D1
         cdef np.ndarray[DTYPE_t, ndim=2] k = np.empty((N, N), dtype=DTYPE)
         for i in range(N):
-            k[i, i] = latent_kernel.value(<double*>(x.data + (i%K)*delta),
-                                        <double*>(x.data + (i%K)*delta), i, i)
+            a = int(i/K)
+            k[i, i] = latent_kernel.value(<double*>(x.data + a*delta),
+                                        <double*>(x.data + a*delta), i, i)
             for j in range(i + 1, N):
-                value = latent_kernel.value(<double*>(x.data + (i%K)*delta),
-                                          <double*>(x.data + (j%K)*delta), i, j)
+                b = int(j/K)
+                value = latent_kernel.value(<double*>(x.data + a*delta),
+                                          <double*>(x.data + b*delta), i, j)
                 k[i, j] = value
                 k[j, i] = value
 

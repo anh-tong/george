@@ -4,8 +4,10 @@
 #include <cmath>
 #include <cfloat>
 #include <vector>
+#include <iostream>
 
 using std::vector;
+using std::cout;
 
 namespace george {
 namespace kernels {
@@ -36,8 +38,6 @@ public:
     virtual void set_parameter (const unsigned int i, const double value) {};
     virtual double get_parameter (const unsigned int i) const { return 0.0; };
 
-    //append component kernels
-    virtual void add_component(Kernel kernel){ };
 
 protected:
     unsigned int ndim_;
@@ -458,13 +458,16 @@ public:
     };
 
     double value(const double* x1, const double* x2, unsigned int i, unsigned int j) const {
-
+        cout << *x1 << "\t" << *x2 << "\t" << i << "\t" << j << "component" << component_.at(i%K_)->get_parameter(0) <<"\n";
         if (i == j){                                                        //case i = j
-            return component_.at(i%D_)->value(x1, x2) + ZTZ_[i%D_*K_ + j%D_];  //+Z[i%D_*K_ + j%D]
-        }else if (i%K_ == j%K_){                                            //case i%K == j%K
-            return ZTZ_[i%D_*K_ + j%D_];                                       //Z[i%D_*K_ + j%D]
-        }else if (i%K_ != j%K_ && i%D_ == j%D_){                             //case i%K != j%K
-            return component_.at(i%D_)->value(x1, x2);
+            //cout << "case i = j. \t c = " << component_.at(i%K_)->value(x1, x2) <<"\t z = " << ZTZ_[i%K_*K_ + j%K_] << "\n";
+            return inversed_.at(i%K_)[i%D_*D_ + j%D_] + ZTZ_[i%K_*K_ + j%K_];  //+Z[i%D_*K_ + j%D]
+        }else if (i/K_ == j/K_){                                            //case i%K == j%K
+            cout << "case i/K_ == j/K_ " <<i/K_ << " \t z = " <<  ZTZ_[i%K_*K_ + j%K_] << "\n";
+            return ZTZ_[i%K_*K_ + j%K_];                                       //Z[i%D_*K_ + j%D]
+        }else if (i/K_ != j/K_ && i%K_ == j%K_){                             //case i%K != j%K
+            cout << " case i%K_ != j%K_ && i%D_ == j%D_ \t c = " << component_.at(i%K_)->value(x1, x2) << "\n";
+            return inversed_.at(i%K_)[i%D_*D_ + j%D_];
         }else                                                               //otherwise 0
             return 0.0;
 
@@ -505,6 +508,10 @@ public:
 
     double get_parameter (const unsigned int i) const{ return parameters_[i]; };
 
+    void add_inversed(double* inv){
+        inversed_.push_back(inv);
+    }
+
 private:
 double* parameters_;
 const unsigned int dim_;
@@ -516,6 +523,7 @@ const double* ZTZ_;
 //ij here
 unsigned int i_;
 unsigned int j_;
+vector<double*> inversed_;
 };
 
 }; // namespace kernels

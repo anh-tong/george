@@ -129,6 +129,14 @@ class Kernel(object):
         x2 = np.ascontiguousarray(x2, dtype=np.float64)
         return self.kernel.value_general(x1, x2)
 
+    def value_ij(self, x1, N, K, D):
+        x1 = np.ascontiguousarray(x1, dtype=np.float64)
+        return self.kernel.value_ij_symmetric(x1, N, K, D)
+
+    def add_inversed(self, inv):
+        inv = np.ascontiguousarray(inv, dtype=np.float64)
+        self.kernel.add_inversed(inv)
+
     def gradient(self, x1, x2=None):
         x1 = np.ascontiguousarray(x1, dtype=np.float64)
         if x2 is None:
