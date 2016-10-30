@@ -32,6 +32,11 @@ cdef class CythonKernel:
         del self.kernel
 
     @cython.boundscheck(False)
+    def reset_inversed(self):
+        cdef kernels.LatentModelKernel* latent_kernel = <kernels.LatentModelKernel*> self.kernel
+        latent_kernel.reset_inversed()
+
+    @cython.boundscheck(False)
     def add_inversed(self, np.ndarray[DTYPE_t, ndim=2] inv):
         cdef kernels.LatentModelKernel* latent_kernel = <kernels.LatentModelKernel*> self.kernel
         latent_kernel.add_inversed(<double*> inv.data)

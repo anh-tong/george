@@ -134,8 +134,13 @@ class Kernel(object):
         return self.kernel.value_ij_symmetric(x1, N, K, D)
 
     def add_inversed(self, inv):
+        #for latent model kernel only
         inv = np.ascontiguousarray(inv, dtype=np.float64)
         self.kernel.add_inversed(inv)
+
+    def reset_inversed(self):
+        #for latent model kernel only
+        self.kernel.reset_inversed()
 
     def gradient(self, x1, x2=None):
         x1 = np.ascontiguousarray(x1, dtype=np.float64)

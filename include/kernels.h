@@ -458,16 +458,12 @@ public:
     };
 
     double value(const double* x1, const double* x2, unsigned int i, unsigned int j) const {
-        cout << *x1 << "\t" << *x2 << "\t" << i << "\t" << j << "component" << component_.at(i%K_)->get_parameter(0) <<"\n";
         if (i == j){                                                        //case i = j
-            //cout << "case i = j. \t c = " << component_.at(i%K_)->value(x1, x2) <<"\t z = " << ZTZ_[i%K_*K_ + j%K_] << "\n";
-            return inversed_.at(i%K_)[i%D_*D_ + j%D_] + ZTZ_[i%K_*K_ + j%K_];  //+Z[i%D_*K_ + j%D]
+            return inversed_.at(i%K_)[i/K_*D_ + j/K_] + ZTZ_[i%K_*K_ + j%K_];  //+Z[i%D_*K_ + j%D]
         }else if (i/K_ == j/K_){                                            //case i%K == j%K
-            cout << "case i/K_ == j/K_ " <<i/K_ << " \t z = " <<  ZTZ_[i%K_*K_ + j%K_] << "\n";
             return ZTZ_[i%K_*K_ + j%K_];                                       //Z[i%D_*K_ + j%D]
         }else if (i/K_ != j/K_ && i%K_ == j%K_){                             //case i%K != j%K
-            cout << " case i%K_ != j%K_ && i%D_ == j%D_ \t c = " << component_.at(i%K_)->value(x1, x2) << "\n";
-            return inversed_.at(i%K_)[i%D_*D_ + j%D_];
+            return inversed_.at(i%K_)[i/K_*D_ + j/K_];
         }else                                                               //otherwise 0
             return 0.0;
 
@@ -510,6 +506,10 @@ public:
 
     void add_inversed(double* inv){
         inversed_.push_back(inv);
+    }
+
+    void reset_inversed(){
+        inversed_.clear();
     }
 
 private:
