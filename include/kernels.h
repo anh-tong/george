@@ -448,9 +448,10 @@ private:
 
 class LatentModelKernel : public Kernel {
 public:
-    LatentModelKernel(const unsigned int ndim, const unsigned int dim, const unsigned int size, const unsigned int K, const unsigned int D, vector<Kernel*> cs, const double* ZTZ)
-        : Kernel(ndim), dim_(dim), size_(size), K_(K), component_(cs), D_(D), ZTZ_(ZTZ) {
+    LatentModelKernel(const unsigned int ndim, const unsigned int dim, const unsigned int size, const unsigned int K, const unsigned int D, vector<Kernel*> cs)
+        : Kernel(ndim), dim_(dim), size_(size), K_(K), component_(cs), D_(D) {
             parameters_ = new double[size];
+            ZTZ_ = new double[K*K];
         };
 
     double value(const double* x1, const double* x2) const{
@@ -459,10 +460,13 @@ public:
 
     double value(const double* x1, const double* x2, unsigned int i, unsigned int j) const {
         if (i == j){                                                        //case i = j
+            cout << "[" <<i << "," <<j << "] = " << inversed_.at(i%K_)[i/K_*D_ + j/K_] + ZTZ_[i%K_*K_ + j%K_] <<"\n";
             return inversed_.at(i%K_)[i/K_*D_ + j/K_] + ZTZ_[i%K_*K_ + j%K_];  //+Z[i%D_*K_ + j%D]
         }else if (i/K_ == j/K_){                                            //case i%K == j%K
+            cout << "["<<i<<","<<j << "] = " << ZTZ_[i%K_*K_ + j%K_] <<"\n";
             return ZTZ_[i%K_*K_ + j%K_];                                       //Z[i%D_*K_ + j%D]
         }else if (i/K_ != j/K_ && i%K_ == j%K_){                             //case i%K != j%K
+            cout << "["<<i<<","<< j << "] = " << inversed_.at(i%K_)[i/K_*D_ + j/K_] <<"\n";
             return inversed_.at(i%K_)[i/K_*D_ + j/K_];
         }else                                                               //otherwise 0
             return 0.0;
@@ -504,6 +508,14 @@ public:
 
     double get_parameter (const unsigned int i) const{ return parameters_[i]; };
 
+    void set_ZTZ(double* ztz){
+        int i;
+        for (i=0; i < K_*K_; ++i){
+            ZTZ_[i] = ztz[i];
+        }
+
+    }
+
     void add_inversed(double* inv){
         inversed_.push_back(inv);
     }
@@ -519,7 +531,7 @@ const unsigned int size_;
 vector<Kernel*> component_;
 const unsigned int K_;
 const unsigned int D_;
-const double* ZTZ_;
+double* ZTZ_;
 //ij here
 unsigned int i_;
 unsigned int j_;

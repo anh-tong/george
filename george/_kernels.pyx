@@ -31,6 +31,11 @@ cdef class CythonKernel:
     def __dealloc__(self):
         del self.kernel
 
+    def set_ZTZ(self, np.ndarray[DTYPE_t, ndim=1] ztz):
+        cdef kernels.LatentModelKernel* latent_kernel = <kernels.LatentModelKernel*> self.kernel
+        latent_kernel.set_ZTZ(<double*> ztz.data)
+
+
     @cython.boundscheck(False)
     def reset_inversed(self):
         cdef kernels.LatentModelKernel* latent_kernel = <kernels.LatentModelKernel*> self.kernel

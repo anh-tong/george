@@ -5,6 +5,7 @@
 #include <Eigen/Dense>
 #include <HODLR_Tree.hpp>
 #include <HODLR_Matrix.hpp>
+#include <iostream>
 
 #include "constants.h"
 #include "kernels.h"
@@ -12,6 +13,7 @@
 using Eigen::VectorXd;
 using Eigen::MatrixXd;
 using george::kernels::LatentModelKernel;
+using std::cout;
 
 namespace george {
 
@@ -29,12 +31,24 @@ public:
     void set_values (const double* v) {
         t_ = v;
     };
+
+    void set_ZTZ(double* ztz){
+        kernel_->set_ZTZ(ztz);
+    }
+
+    void add_inversed(double* inv){
+        kernel_->add_inversed(inv);
+    }
+
+    void reset_inversed(){
+        kernel_->reset_inversed();
+    }
+
     double get_Matrix_Entry (const unsigned i, const unsigned j) {
-        kernel_->set_ij(i,j);
         int d1 = i % kernel_->get_K();
         int d2 = j % kernel_->get_K();
-        kernel_->set_ij(i,j);
-        return kernel_->value(&(t_[d1*stride_]), &(t_[d2*stride_]));
+        double v = kernel_->value(&(t_[d1*stride_]), &(t_[d2*stride_]), i, j);
+        return kernel_->value(&(t_[d1*stride_]), &(t_[d2*stride_]), i, j);
     };
 
 private:
@@ -63,6 +77,19 @@ public:
         delete matrix_;
     };
 
+
+    void set_ZTZ(double* ztz){
+        matrix_->set_ZTZ(ztz);
+    }
+
+    void add_inversed(double* inv){
+        matrix_->add_inversed(inv);
+    }
+
+    void reset_inversed(){
+        matrix_->reset_inversed();
+    }
+
     //
     // Accessors.
     //
@@ -85,7 +112,7 @@ public:
         for (unsigned int i = 0; i < n; ++i) {
             diag[i] = yerr[i]*yerr[i];
             int d = i % kernel_->get_K();
-            diag[i] += kernel_->value(&(x[d*ndim]), &(x[d*ndim]));
+            diag[i] += kernel_->value(&(x[d*ndim]), &(x[d*ndim]), i, i);
         }
 
         // Set the time points for the kernel.

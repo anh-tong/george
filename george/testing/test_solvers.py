@@ -44,15 +44,15 @@ def test_hodlr_solver(**kwargs):
     _test_solver(HODLRSolver, **kwargs)
 
 def test_latent_holr_solver(**kwargs):
-    se1 = kernels.ExpSquaredKernel(1.5)
-    se2 = kernels.ExpSquaredKernel(2.5)
-    se3 = kernels.ExpSquaredKernel(4.5)
+    se1 = kernels.ExpSquaredKernel(-3.1)
+    se2 = kernels.ExpSquaredKernel(-0.5)
+    se3 = kernels.ExpSquaredKernel(-1.5)
 
 
 
 
-    latent_model_kernel = kernels.LatentModelKernel(kernels = [se1, se2, se3], pars = np.append(np.append(se1.pars, se2.pars), se3.pars), d = 2, ztz=np.array([ 1.0, 1.0, 1.0, 0.0, 1.0, 0.0, 1.0, 1.0, 0.0]))
-    solver = LatentHODLRSolver(latent_model_kernel)
+    latent_model_kernel = kernels.LatentModelKernel(kernels = [se1, se2, se3], pars = np.append(np.append(se1.pars, se2.pars), se3.pars), d = 10)
+    latent_model_kernel.set_ZTZ(ztz=np.array([ 1.0, 1.0, 1.0, 0.0, 1.0, 0.0, 1.0, 1.0, 0.0]))
     x = np.random.randn(latent_model_kernel.d, latent_model_kernel.ndim)
     print(se1.value(x))
     print(se2.value(x))
@@ -72,6 +72,17 @@ def test_latent_holr_solver(**kwargs):
 
     # solver.compute(x, yerr)
     K = latent_model_kernel.value_ij(x,latent_model_kernel.k*latent_model_kernel.d, latent_model_kernel.k, latent_model_kernel.d )
-    print(K)
+    print(np.linalg.inv(K))
+
+    solver = LatentHODLRSolver(latent_model_kernel)
+    solver.set_ZTZ(np.array([ 1.0, 1.0, 1.0, 0.0, 1.0, 0.0, 1.0, 1.0, 0.0]))
+    solver.add_inversed(inv1)
+    solver.add_inversed(inv2)
+    solver.add_inversed(inv3)
+    solver.compute(x, yerr)
+    lndet = np.linalg.det(K)
+    print(lndet)
+    print(solver.log_determinant)
+    assert np.allclose(solver.log_determinant, lndet), "Incorrect determinant"
 
 

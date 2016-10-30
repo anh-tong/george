@@ -122,6 +122,10 @@ class Kernel(object):
     def __rmul__(self, b):
         return self.__mul__(b)
 
+
+    def set_ZTZ(self, ztz):
+        self.kernel.set_ZTZ(ztz)
+
     def value(self, x1, x2=None):
         x1 = np.ascontiguousarray(x1, dtype=np.float64)
         if x2 is None:

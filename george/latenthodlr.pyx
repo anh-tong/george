@@ -19,7 +19,9 @@ cdef extern from "latentsolver.h" namespace "george":
         int get_computed () const
         double get_log_determinant () const
         void apply_inverse (const unsigned int, const unsigned int, double*, double*)
-
+        void add_inversed(double* inv)
+        void reset_inversed()
+        void set_ZTZ(double* inv)
 
 def _rebuild(kernel_spec, nleaf, tol):
     return LatentHODLRSolver(kernel_spec, nleaf=nleaf, tol=tol)
@@ -68,6 +70,15 @@ cdef class LatentHODLRSolver:
         del self.solver
         del self.kernel
 
+    def set_ZTZ(self, np.ndarray[DTYPE_t, ndim=1] ztz):
+        self.solver.set_ZTZ(<double*> ztz.data)
+
+    def add_inversed(self, np.ndarray[DTYPE_t, ndim=2] inv):
+        self.solver.add_inversed(<double*> inv.data)
+
+    def reset_inversed(self):
+        self.solver.reset_inversed()
+
     def compute(self, np.ndarray[DTYPE_t, ndim=2] x,
                 np.ndarray[DTYPE_t, ndim=1] yerr, seed=None):
         """
@@ -102,7 +113,7 @@ cdef class LatentHODLRSolver:
 
         # Compute the matrix.
         cdef int info
-        info = self.solver.compute(n, <double*>x.data, <double*>yerr.data, seed)
+        info = self.solver.compute(self.kernel_spec.k*self.kernel_spec.d, <double*>x.data, <double*>yerr.data, seed)
         if info != 0:
             raise np.linalg.LinAlgError(info)
 
